@@ -1,30 +1,62 @@
-# Ollama Web Server
+# Ollama Web Interface
 
-A Node.js server that connects your local Ollama instance to the internet with a beautiful, modern web interface for chatting with your local LLM models.
+A modern, feature-rich web interface for Ollama that provides a beautiful chat experience with local AI models. Built with Node.js, Express, and vanilla JavaScript.
 
-## Features
+![Ollama Web Interface](https://img.shields.io/badge/Node.js-18+-green)
+![License](https://img.shields.io/badge/License-MIT-blue)
+![Version](https://img.shields.io/badge/Version-1.0.0-orange)
 
-- 🌐 **Web Interface**: Modern, responsive HTML interface for interacting with Ollama
-- 🔗 **API Proxy**: RESTful API endpoints to connect to your local Ollama instance
-- 📱 **Responsive Design**: Works on desktop, tablet, and mobile devices
-- ⚙️ **Model Management**: Automatic detection and selection of available models
-- 🎛️ **Advanced Settings**: Temperature, top-p, and max tokens controls
-- 💬 **Chat Interface**: Real-time chat with message history
-- 📊 **Connection Status**: Live status indicator for Ollama connection
-- 🔄 **Recent Messages**: Quick access to recent prompts
+## ✨ Features
 
-## Prerequisites
+### 🤖 **Multi-Model Support**
+- Connect to any Ollama model (gemma3, llama, mistral, etc.)
+- Automatic model detection and listing
+- Model information display (size, capabilities)
 
-- [Node.js](https://nodejs.org/) (v14 or higher)
-- [Ollama](https://ollama.ai/) installed and running locally
+### 🖼️ **Image Interpretation**
+- Upload images for AI analysis
+- Support for models like `gemma3:12b`, `llava`, and other vision models
+- Image preview and removal
+- Smart context management to avoid image confusion
+
+### 👥 **Multi-User System**
+- User login with name-based identification
+- Isolated conversation history per user
+- Persistent conversations with SQLite database
+- User statistics and conversation management
+
+### 💬 **Conversation Context**
+- Intelligent conversation memory
+- Context-aware responses
+- Smart filtering to prevent image confusion
+- Export conversation history
+
+### 🎨 **Modern UI/UX**
+- Dark/Light theme support
+- Responsive design for mobile and desktop
+- Markdown rendering with syntax highlighting
+- Real-time character count and typing indicators
+- Input suggestions and quick actions
+
+### ⚙️ **Advanced Settings**
+- Temperature, Top P, and Max Tokens controls
+- Model selection and information
+- Connection status monitoring
+- Recent messages history
+
+## 🚀 Quick Start
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Ollama](https://ollama.ai/) installed and running
 - At least one Ollama model downloaded
 
-## Installation
+### Installation
 
-1. **Clone or download this repository**
+1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd ollama-web-server
+   git clone https://github.com/zetakai/ollama-web-interface.git
+   cd ollama-web-interface
    ```
 
 2. **Install dependencies**
@@ -32,170 +64,146 @@ A Node.js server that connects your local Ollama instance to the internet with a
    npm install
    ```
 
-3. **Start Ollama** (if not already running)
+3. **Start the server**
    ```bash
-   ollama serve
+   npm start
    ```
 
-4. **Download a model** (if you haven't already)
-   ```bash
-   ollama pull llama2
-   # or any other model you prefer
-   ```
+4. **Open your browser**
+   Navigate to `http://localhost:3000`
 
-## Usage
+### First Time Setup
 
-### Starting the Server
+1. **Enter your name** in the login modal
+2. **Select a model** from the dropdown in the sidebar
+3. **Start chatting!** 🎉
 
-```bash
-# Development mode (with auto-restart)
-npm run dev
+## 📸 Image Upload Guide
 
-# Production mode
-npm start
-```
+### Supported Models
+- `gemma3:12b` (recommended)
+- `llava` and variants
+- `bakllava`
+- Other vision-capable models
 
-The server will start on `http://localhost:3000` by default.
+### How to Use
+1. Select a supported model
+2. Click the camera icon in the input area
+3. Choose an image file (JPEG, PNG, under 10MB)
+4. Add a prompt or let the AI describe the image
+5. Send your message
+
+## 🛠️ Configuration
 
 ### Environment Variables
-
-Create a `.env` file in the root directory to customize settings:
+Create a `.env` file in the root directory:
 
 ```env
 PORT=3000
 OLLAMA_URL=http://localhost:11434
 ```
 
-- `PORT`: The port for the web server (default: 3000)
-- `OLLAMA_URL`: The URL of your Ollama instance (default: http://localhost:11434)
+### Database
+The application uses SQLite for data persistence:
+- **File**: `chat_history.db` (created automatically)
+- **Tables**: `users`, `conversations`
+- **Features**: Automatic backup and recovery
 
-## API Endpoints
+## 📁 Project Structure
 
-### GET `/api/models`
-Get all available models from Ollama.
-
-**Response:**
-```json
-{
-  "models": [
-    {
-      "name": "llama2",
-      "size": 3790000000,
-      "modified_at": "2023-12-01T10:00:00Z"
-    }
-  ]
-}
+```
+ollama-web-interface/
+├── public/
+│   ├── index.html          # Main HTML file
+│   ├── styles.css          # CSS styles
+│   └── script.js           # Frontend JavaScript
+├── server.js               # Express server
+├── database.js             # SQLite database operations
+├── package.json            # Dependencies and scripts
+└── README.md              # This file
 ```
 
-### POST `/api/generate`
-Generate a response from a model.
+## 🔧 Development
 
-**Request Body:**
-```json
-{
-  "model": "llama2",
-  "prompt": "Hello, how are you?",
-  "options": {
-    "temperature": 0.7,
-    "top_p": 0.9,
-    "num_predict": 2048
-  }
-}
+### Running in Development Mode
+```bash
+npm run dev
 ```
 
-**Response:**
-```json
-{
-  "model": "llama2",
-  "response": "Hello! I'm doing well, thank you for asking...",
-  "done": true
-}
-```
+### Database Operations
+The application automatically handles:
+- User creation and management
+- Conversation storage and retrieval
+- Context building for AI responses
+- Image data management
 
-### GET `/api/health`
-Check the connection status to Ollama.
+### API Endpoints
 
-**Response:**
-```json
-{
-  "status": "healthy",
-  "ollama": "connected"
-}
-```
+- `GET /` - Main web interface
+- `POST /api/user/login` - User authentication
+- `GET /api/models` - List available models
+- `POST /api/generate` - Generate AI responses
+- `GET /api/conversations/:userName` - Get user conversations
+- `DELETE /api/conversations/:userName` - Clear user history
+- `GET /api/health` - Health check
 
-## Web Interface
+## 🎯 Features in Detail
 
-Once the server is running, open your browser and navigate to `http://localhost:3000`. You'll see:
+### Smart Context Management
+- **Text Conversations**: Full context from previous chats
+- **Image Conversations**: Isolated context to prevent confusion
+- **Mixed Context**: Intelligent filtering based on request type
 
-1. **Header**: Shows connection status and title
-2. **Chat Area**: Main conversation interface
-3. **Model Selection**: Dropdown to choose your Ollama model
-4. **Settings Panel**: Adjust temperature, top-p, and max tokens
-5. **Recent Messages**: Quick access to previous prompts
+### User Experience
+- **Auto-login**: Remembers your session
+- **Conversation Export**: Download chat history as JSON
+- **Real-time Updates**: Live connection status and notifications
+- **Mobile Responsive**: Works on all device sizes
 
-### How to Use
+### Security & Performance
+- **Input Validation**: Secure file uploads and data handling
+- **Error Handling**: Graceful error recovery
+- **Memory Management**: Efficient conversation storage
+- **Rate Limiting**: Built-in protection against abuse
 
-1. **Select a Model**: Choose from your available Ollama models
-2. **Adjust Settings**: Modify temperature, top-p, and max tokens as needed
-3. **Start Chatting**: Type your message and press Enter or click Send
-4. **View Responses**: See the model's response in real-time
-5. **Clear Chat**: Use the trash button to start a new conversation
+## 🤝 Contributing
 
-## Troubleshooting
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Common Issues
+### Development Setup
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-1. **"Connection failed" status**
-   - Make sure Ollama is running: `ollama serve`
-   - Check if Ollama is accessible at `http://localhost:11434`
+## 📄 License
 
-2. **"No models found"**
-   - Download a model: `ollama pull llama2`
-   - Check available models: `ollama list`
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-3. **Server won't start**
-   - Check if port 3000 is available
-   - Try a different port in the `.env` file
+## 👨‍💻 Developer
 
-4. **Slow responses**
-   - This is normal for local LLMs
-   - Consider using a smaller/faster model
-   - Adjust max tokens to limit response length
+**Developed by [zetakai](https://github.com/zetakai)**
 
-### Port Conflicts
+- GitHub: [@zetakai](https://github.com/zetakai)
+- Project: [ollama-web-interface](https://github.com/zetakai/ollama-web-interface)
 
-If port 3000 is already in use, you can:
+## 🙏 Acknowledgments
 
-1. Change the port in `.env`:
-   ```env
-   PORT=3001
-   ```
+- [Ollama](https://ollama.ai/) for the amazing local AI platform
+- [Express.js](https://expressjs.com/) for the web framework
+- [SQLite](https://www.sqlite.org/) for data persistence
+- [Font Awesome](https://fontawesome.com/) for icons
+- [Marked](https://marked.js.org/) for markdown rendering
 
-2. Or specify the port when starting:
-   ```bash
-   PORT=3001 npm start
-   ```
+## 📞 Support
 
-## Security Considerations
+If you encounter any issues or have questions:
 
-⚠️ **Important**: This server is designed for local development and personal use. For production deployment:
+1. Check the [Issues](https://github.com/zetakai/ollama-web-interface/issues) page
+2. Create a new issue with detailed information
+3. Include your Ollama version and model information
 
-1. **Add Authentication**: Implement user authentication
-2. **Use HTTPS**: Set up SSL/TLS certificates
-3. **Rate Limiting**: Add request rate limiting
-4. **Input Validation**: Validate and sanitize all inputs
-5. **Firewall**: Configure firewall rules appropriately
+---
 
-## Contributing
-
-Feel free to submit issues and enhancement requests!
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## Acknowledgments
-
-- [Ollama](https://ollama.ai/) for the amazing local LLM framework
-- [Express.js](https://expressjs.com/) for the web server framework
-- [Font Awesome](https://fontawesome.com/) for the icons 
+**Made with ❤️ by zetakai** 

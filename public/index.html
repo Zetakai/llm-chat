@@ -1,104 +1,213 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ollama Web Interface</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-robot"></i> Ollama Web Interface</h1>
-            <div class="status-indicator" id="statusIndicator">
-                <span class="status-dot"></span>
-                <span class="status-text">Checking connection...</span>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-circle"></i> Welcome to Ollama Chat</h2>
+                <p>Enter your name to start chatting</p>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="userName">Your Name:</label>
+                        <input type="text" id="userName" name="userName" placeholder="Enter your name..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Start Chatting
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Interface -->
+    <div id="mainInterface" class="hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button id="menuBtn" class="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1><i class="fas fa-robot"></i> Ollama Chat</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span id="currentUser" class="user-name"></span>
+                    <button id="logoutBtn" class="btn btn-small" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+                <div class="theme-toggle">
+                    <button class="theme-btn active" data-theme="dark" title="Dark Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="theme-btn" data-theme="light" title="Light Theme">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
-        <main>
-            <div class="chat-container">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message system">
-                        <div class="message-content">
-                            <i class="fas fa-info-circle"></i>
-                            Welcome! Select a model and start chatting with your local Ollama instance.
-                        </div>
-                    </div>
-                </div>
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>Settings</h3>
+                <button id="sidebarToggle" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
 
-                <div class="chat-input-container">
-                    <div class="input-controls">
-                        <select id="modelSelect" class="model-select">
-                            <option value="">Loading models...</option>
-                        </select>
-                        <button id="clearChat" class="btn btn-secondary" title="Clear chat">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="input-group">
-                        <textarea 
-                            id="promptInput" 
-                            placeholder="Type your message here..." 
-                            rows="3"
-                            maxlength="4000"
-                        ></textarea>
-                        <div class="input-actions">
-                            <span class="char-count" id="charCount">0/4000</span>
-                            <button id="sendButton" class="btn btn-primary" disabled>
-                                <i class="fas fa-paper-plane"></i>
-                                Send
-                            </button>
-                        </div>
-                    </div>
+            <!-- Connection Status -->
+            <div class="status-section">
+                <h4>Connection Status</h4>
+                <div id="statusIndicator" class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
                 </div>
             </div>
 
-            <div class="sidebar">
-                <div class="sidebar-section">
-                    <h3><i class="fas fa-cog"></i> Settings</h3>
-                    <div class="setting-group">
-                        <label for="temperature">Temperature:</label>
-                        <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7">
-                        <span id="temperatureValue">0.7</span>
-                    </div>
-                    <div class="setting-group">
-                        <label for="maxTokens">Max Tokens:</label>
-                        <input type="number" id="maxTokens" min="1" max="4096" value="2048">
-                    </div>
-                    <div class="setting-group">
-                        <label for="topP">Top P:</label>
-                        <input type="range" id="topP" min="0" max="1" step="0.1" value="0.9">
-                        <span id="topPValue">0.9</span>
-                    </div>
+            <!-- Model Selection -->
+            <div class="model-section">
+                <h4>Model Selection</h4>
+                <select id="modelSelect" class="model-select">
+                    <option value="">Select a model...</option>
+                </select>
+                <div id="modelInfo" class="model-info">
+                    <p>Select a model to see details</p>
+                </div>
+            </div>
+
+            <!-- Generation Settings -->
+            <div class="settings-section">
+                <h4>Generation Settings</h4>
+                
+                <div class="setting-group">
+                    <label for="temperature">Temperature: <span id="temperatureValue">0.7</span></label>
+                    <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7">
                 </div>
 
-                <div class="sidebar-section">
-                    <h3><i class="fas fa-info-circle"></i> Model Info</h3>
-                    <div id="modelInfo" class="model-info">
-                        <p>Select a model to see details</p>
-                    </div>
+                <div class="setting-group">
+                    <label for="topP">Top P: <span id="topPValue">0.9</span></label>
+                    <input type="range" id="topP" min="0" max="1" step="0.1" value="0.9">
                 </div>
 
-                <div class="sidebar-section">
-                    <h3><i class="fas fa-history"></i> Recent Messages</h3>
-                    <div id="recentMessages" class="recent-messages">
-                        <p>No recent messages</p>
+                <div class="setting-group">
+                    <label for="maxTokens">Max Tokens: <span id="maxTokensValue">2048</span></label>
+                    <input type="range" id="maxTokens" min="1" max="4096" step="1" value="2048">
+                </div>
+            </div>
+
+            <!-- Recent Messages -->
+            <div class="recent-section">
+                <h4>Recent Messages</h4>
+                <div id="recentMessages" class="recent-messages">
+                    <p>No recent messages</p>
+                </div>
+            </div>
+
+            <!-- Chat Actions -->
+            <div class="actions-section">
+                <h4>Chat Actions</h4>
+                <button id="clearChat" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+                <button id="exportChat" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Export Chat
+                </button>
+            </div>
+
+            <!-- Credits Section -->
+            <div class="credits-section">
+                <h4>About</h4>
+                <div class="credits-content">
+                    <p class="app-name">Ollama Web Interface</p>
+                    <p class="version">v1.0.0</p>
+                    <div class="developer-info">
+                        <p>Developed by <a href="https://github.com/zetakai" target="_blank" rel="noopener noreferrer">zetakai</a></p>
+                        <a href="https://github.com/zetakai/ollama-web-interface" target="_blank" rel="noopener noreferrer" class="github-link">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Chat Messages -->
+            <div id="chatMessages" class="chat-messages"></div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-suggestions" id="inputSuggestions">
+                        <button class="suggestion-btn" data-suggestion="Hello, how are you?">Hello, how are you?</button>
+                        <button class="suggestion-btn" data-suggestion="What can you help me with?">What can you help me with?</button>
+                        <button class="suggestion-btn" data-suggestion="Tell me a joke">Tell me a joke</button>
+                        <button class="suggestion-btn" data-suggestion="Explain quantum computing">Explain quantum computing</button>
+                    </div>
+                    
+                    <div class="input-row">
+                        <div class="image-upload-container">
+                            <label for="imageUpload" class="image-upload-label" title="Upload image">
+                                <i class="fas fa-image"></i>
+                            </label>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                            <div id="imagePreview" class="image-preview" style="display: none;">
+                                <img id="previewImg" alt="Preview">
+                                <button id="removeImage" class="remove-image">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <textarea 
+                            id="promptInput" 
+                            placeholder="Type your message here... (Shift+Enter for new line)"
+                            rows="1"
+                        ></textarea>
+                        
+                        <button id="sendButton" class="send-button" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="input-footer">
+                        <span id="charCount" class="char-count">0/4000</span>
+                        <span id="currentTime" class="current-time"></span>
                     </div>
                 </div>
             </div>
         </main>
-    </div>
 
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Generating response...</p>
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Generating response...</p>
+            </div>
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 
