@@ -55,8 +55,8 @@ A modern, feature-rich web interface for Ollama that provides a beautiful chat e
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/zetakai/ollama-web-interface.git
-   cd ollama-web-interface
+   git clone https://github.com/zetakai/llm-chat.git
+   cd llm-chat
    ```
 
 2. **Install dependencies**
@@ -112,7 +112,7 @@ The application uses SQLite for data persistence:
 ## 📁 Project Structure
 
 ```
-ollama-web-interface/
+llm-chat/
 ├── public/
 │   ├── index.html          # Main HTML file
 │   ├── styles.css          # CSS styles
@@ -186,7 +186,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Developed by [zetakai](https://github.com/zetakai)**
 
 - GitHub: [@zetakai](https://github.com/zetakai)
-- Project: [ollama-web-interface](https://github.com/zetakai/ollama-web-interface)
+- Project: [llm-chat](https://github.com/zetakai/llm-chat)
 
 ## 🙏 Acknowledgments
 
@@ -200,7 +200,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/zetakai/ollama-web-interface/issues) page
+1. Check the [Issues](https://github.com/zetakai/llm-chat/issues) page
 2. Create a new issue with detailed information
 3. Include your Ollama version and model information
 
